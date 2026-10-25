@@ -56,11 +56,11 @@ El siguiente diagrama ilustra la arquitectura de seguridad y red implementada en
 flowchart TD
     subgraph Local["Entorno de Trabajo Local"]
         TF["Terraform CLI"]
-        AWSCLI["AWS CLI (Credenciales IAM)"]
+        AWSCLI["AWS CLI"]
     end
 
-    subgraph AWSCloud["AWS Cloud (us-east-1)"]
-        subgraph IAM["Gestión de Identidad (IAM)"]
+    subgraph AWSCloud["AWS Cloud us-east-1"]
+        subgraph IAM["Gestión de Identidad IAM"]
             Role["IAM Role: ec2_iam_role"]
             Policy["Policy: AmazonSSMManagedInstanceCore"]
             Profile["IAM Instance Profile: ec2_profile"]
@@ -69,27 +69,27 @@ flowchart TD
         end
 
         subgraph VPC["Default / Custom VPC"]
-            SG["Security Group: sg_ec2\nIngress: 80 (HTTP), 443 (HTTPS)\nEgress: All Traffic (-1)"]
-            EIP["Elastic IP (EIP)"]
+            SG["Security Group: sg_ec2 - Ingress 80 y 443"]
+            EIP["Elastic IP"]
 
-            subgraph Compute["Instancias EC2 (Ubuntu 24.04)"]
-                EC2_1["Instancia: Roweb-Ec2 Instance\n(Módulo Local ./modules/ec2)\n- Nginx Web Server\n- Amazon SSM Agent"]
-                EC2_2["Instancia: instance_module_external\n(Módulo Comunitario Registry)"]
+            subgraph Compute["Instancias EC2"]
+                EC2_1["Instancia: Roweb-Ec2 Instance - Modulo Local"]
+                EC2_2["Instancia: instance_module_external - Modulo Registry"]
             end
 
-            EIP -->|IP Pública Fija| EC2_1
-            SG -->|Filtrado de Tráfico| EC2_1
-            Profile -->|Credenciales Asignadas| EC2_1
+            EIP -->|"IP Pública Fija"| EC2_1
+            SG -->|"Filtrado de Tráfico"| EC2_1
+            Profile -->|"Credenciales Asignadas"| EC2_1
         end
 
         subgraph SSM["AWS Systems Manager"]
-            SessionManager["Session Manager (Gestión de Sesiones)"]
+            SessionManager["Session Manager"]
         end
     end
 
-    TF -->|Aprovisiona Recursos| AWSCloud
-    AWSCLI -->|Autenticación| Local
-    SessionManager <-->|Túnel HTTPS Seguro (Sin SSH / Puerto 22 cerrado)| EC2_1
+    TF -->|"Aprovisiona Recursos"| AWSCloud
+    AWSCLI -->|"Autenticación"| Local
+    SessionManager <-->|"Túnel HTTPS Seguro - Sin SSH"| EC2_1
 ```
 
 ---
